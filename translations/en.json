@@ -1,6 +1,15 @@
 {
   "title": "HOHO`` Chromecast Media Center",
   "config": {
+    "error": {
+      "pwd_error": "Wrong password or username.",
+      "no_files": "Empty folder!",
+      "path_error": "Incorrect or inaccessible path!",
+      "unable_to_connect_or_netbios_name_error": "IP or HOSTNAME INCORRECT!",
+      "path_not_exist": "Local path does not exist!",
+      "mapping_incorrect": "Local path with web address not same!",
+      "path_or_web-address_incorrect": "Local path with web address does not mapping!"
+    },
     "abort": {
       "one_instance_only": "CURRENT VERSION JUST 1 INSTANCE SUPPORTED."
     },
@@ -38,7 +47,7 @@
       "path_error": "Incorrect or inaccessible path!",
       "unable_to_connect_or_netbios_name_error": "IP or HOSTNAME INCORRECT!",
       "path_not_exist": "Local path does not exist!",
-      "mapping_incorrect": "Content of file does not equ, WTF?",
+      "mapping_incorrect": "Local path with web address not same!",
       "path_or_web-address_incorrect": "Local path with web address does not mapping!"
     },
     "step": {
