@@ -1,6 +1,8 @@
 import logging
+import os
 from typing import Any, Dict, Optional
 
+import requests as req
 import voluptuous as vol
 
 from homeassistant import config_entries
@@ -10,9 +12,8 @@ from .hoho_smb import HohoSmbUtil
 
 _LOGGER = logging.getLogger(__name__)
 
-HOHO_DEFAULT_CONF_DICT = {"speaker": "media_player.home_group",
-                          "cover_temp_file_path": "/config/www/album_cover_temp.jpg",
-                          "cover_temp_file_url": "https://YOUR-HA-SERVER-DOMAIN_IP:PORT/local/album_cover_temp.jpg?",
+HOHO_DEFAULT_CONF_DICT = {"speaker": "media_player.home_group", "cover_temp_file_path": "config/www",
+                          "cover_temp_file_url": "http://127.0.0.1:8123/local",
                           "file_exts_filter": "mp3;flac", "fix_ha_media_player": True, "rich_info_support": True,
                           "reset_ordered_index_once_stop_playing": True, "shuffle": True, "netbios": "HOSTNAME",
                           "ip_address": "IP", "username": "USER", "password": "PWD", "root_folder": "FOLDER NAME",
@@ -51,6 +52,14 @@ class UserInputUtils:
 class HohoChromecastMediaCenterConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
+    async def get_media_players(self):
+        all_media_player = dict()
+        all_entities = await self.hass.async_add_executor_job(self.hass.states.all)
+        for e in all_entities:
+            if e.entity_id.startswith("media_player."):
+                all_media_player.update({e.entity_id: e.name})
+        return all_media_player
+
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
 
         data = HOHO_DEFAULT_CONF_DICT
@@ -58,17 +67,31 @@ class HohoChromecastMediaCenterConfigFlow(config_entries.ConfigFlow, domain=DOMA
         if self.hass.data.get(DOMAIN) is not None:
             return self.async_abort(reason="one_instance_only")
 
-        all_media_player = dict()
-        all_entities = await self.hass.async_add_executor_job(self.hass.states.all)
-        for e in all_entities:
-            if e.entity_id.startswith("media_player."):
-                all_media_player.update({e.entity_id: e.name})
-
         return self.async_show_form(step_id="hoho",
-                                    data_schema=vol.Schema(UserInputUtils.page1(data, all_media_player)))
+                                    data_schema=vol.Schema(UserInputUtils.page1(data, await self.get_media_players())))
 
     async def async_step_hoho(self, user_input=None, error=None):
         user_input.update(HOHO_DEFAULT_CONF_DICT.items())
+        if not os.path.exists(user_input[CONF_ALBUM_COVER_TEMP_FILE]):
+            _LOGGER.warning("local path does not exist.")
+            return self.async_show_form(step_id="hoho", data_schema=vol.Schema(
+                UserInputUtils.page1(user_input, await self.get_media_players())), errors={"base": "path_not_exist"})
+        _LOGGER.info("local path exist, next step...")
+        try:
+            _LOGGER.info("writing file to local path testing...")
+            content = await self.testing_mapping(user_input[CONF_ALBUM_COVER_TEMP_FILE],
+                                           user_input[CONF_ALBUM_COVER_TEMP_URL])
+            _LOGGER.info("got response from web address, verifying...")
+            if content != "TESTING":
+                _LOGGER.warning("content different! verifying failed! got %s", content)
+                return self.async_show_form(step_id="hoho", data_schema=vol.Schema(
+                    UserInputUtils.page1(user_input, await self.get_media_players())),
+                                            errors={"base": "mapping_incorrect"})
+        except Exception as err:
+            _LOGGER.error(err)
+            return self.async_show_form(step_id="hoho", data_schema=vol.Schema(
+                UserInputUtils.page1(user_input, await self.get_media_players())),
+                                        errors={"base": "path_or_web-address_incorrect"})
         return self.async_show_form(step_id="smb", data_schema=vol.Schema(UserInputUtils.page2(user_input)), )
 
     async def async_step_smb(self, user_input=None):
@@ -84,6 +107,14 @@ class HohoChromecastMediaCenterConfigFlow(config_entries.ConfigFlow, domain=DOMA
         _LOGGER.info("verify SMB success")
         return self.async_create_entry(title="Hoho Media Center", data=user_input)
 
+    async def testing_mapping(self, local: str, remote: str) -> str:
+        file_test = open(local + "/HohoMediaWriteableTest.txt", "w")
+        file_test.write("TESTING")
+        file_test.close()
+        _LOGGER.info("file wrote done, testing web http address mapping...")
+        resp = await self.hass.async_add_executor_job(req.get, remote + "/HohoMediaWriteableTest.txt")
+        return resp.content.decode('utf-8')
+
     @staticmethod
     @callback
     def async_get_options_flow(config_entry):
@@ -96,6 +127,14 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         self.config_entry = config_entry
         self.data = HOHO_DEFAULT_CONF_DICT
         self.data.update(config_entry.data.items())
+
+    async def get_media_players(self):
+        all_media_player = dict()
+        all_entities = await self.hass.async_add_executor_job(self.hass.states.all)
+        for e in all_entities:
+            if e.entity_id.startswith("media_player."):
+                all_media_player.update({e.entity_id: e.name})
+        return all_media_player
 
     async def async_step_init(self, user_input=None):
         """Manage the options."""
@@ -115,7 +154,34 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
     async def async_step_hoho(self, user_input=None):
         self.data.update(user_input.items())
+        if not os.path.exists(self.data[CONF_ALBUM_COVER_TEMP_FILE]):
+            _LOGGER.warning("local path does not exist.")
+            return self.async_show_form(step_id="hoho", data_schema=vol.Schema(
+                UserInputUtils.page1(self.data, await self.get_media_players())), errors={"base": "path_not_exist"})
+        _LOGGER.info("local path exist, next step...")
+        try:
+            _LOGGER.info("writing file to local path testing...")
+            content = await self.testing_mapping(self.data[CONF_ALBUM_COVER_TEMP_FILE], self.data[CONF_ALBUM_COVER_TEMP_URL])
+            _LOGGER.info("got response from web address, verifying...")
+            if content != "TESTING":
+                _LOGGER.warning("content different! verifying failed! got %s", content)
+                return self.async_show_form(step_id="hoho", data_schema=vol.Schema(
+                    UserInputUtils.page1(self.data, await self.get_media_players())),
+                                            errors={"base": "mapping_incorrect"})
+        except Exception as err:
+            _LOGGER.error(err)
+            return self.async_show_form(step_id="hoho", data_schema=vol.Schema(
+                UserInputUtils.page1(self.data, await self.get_media_players())),
+                                        errors={"base": "path_or_web-address_incorrect"})
         return self.async_show_form(step_id="smb", data_schema=vol.Schema(UserInputUtils.page2(self.data)), )
+
+    async def testing_mapping(self, local: str, remote: str) -> str:
+        file_test = open(local + "/HohoMediaWriteableTest.txt", "w")
+        file_test.write("TESTING")
+        file_test.close()
+        _LOGGER.info("file wrote done, testing web http address mapping...")
+        resp = await self.hass.async_add_executor_job(req.get, remote + "/HohoMediaWriteableTest.txt")
+        return resp.content.decode('utf-8')
 
     async def async_step_smb(self, user_input=None):
         self.data.update(user_input.items())
