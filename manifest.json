@@ -1,0 +1,15 @@
+{
+  "codeowners": [
+    "@nov30th"
+  ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/nov30th/chromecast_media_center",
+  "domain": "chromecast_media_center",
+  "iot_class": "assumed_state",
+  "name": "Chromecast Media Center",
+  "requirements": [
+    "pysmb==1.2.7"
+  ],
+  "version": "0.0.1"
+}
