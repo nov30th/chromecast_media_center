@@ -17,7 +17,7 @@ HOHO_DEFAULT_CONF_DICT = {"speaker": "media_player.home_group", "cover_temp_file
                           "fix_ha_media_player": True, "rich_info_support": True,
                           "reset_ordered_index_once_stop_playing": True, "shuffle": True, "netbios": "HOSTNAME",
                           "ip_address": "IP", "username": "USER", "password": "PWD", "root_folder": "FOLDER NAME",
-                          "path": "/", }
+                          "path": "/", "conf": False}
 
 
 def fillEmptyFields(source: Dict):
@@ -68,62 +68,16 @@ class HohoChromecastMediaCenterConfigFlow(config_entries.ConfigFlow, domain=DOMA
 
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
 
-        data = HOHO_DEFAULT_CONF_DICT
-
         if self.hass.data.get(DOMAIN) is not None:
             return self.async_abort(reason="one_instance_only")
 
-        return self.async_show_form(step_id="hoho",
-                                    data_schema=vol.Schema(UserInputUtils.page1(data, await self.get_media_players())))
+        return self.async_show_form(step_id="readme", data_schema=None)
 
-    async def async_step_hoho(self, user_input=None, error=None):
-        fillEmptyFields(user_input)
-        if not os.path.exists(user_input[CONF_ALBUM_COVER_TEMP_FILE]):
-            os.mkdir(user_input[CONF_ALBUM_COVER_TEMP_FILE])
-        if not os.path.exists(user_input[CONF_ALBUM_COVER_TEMP_FILE]):
-            _LOGGER.warning("local path does not exist.")
-            return self.async_show_form(step_id="hoho", data_schema=vol.Schema(
-                UserInputUtils.page1(user_input, await self.get_media_players())), errors={"base": "path_not_exist"})
-        _LOGGER.info("local path exist, next step...")
-        try:
-            _LOGGER.info("writing file to local path testing...")
-            content = await self.testing_mapping(user_input[CONF_ALBUM_COVER_TEMP_FILE],
-                                                 user_input[CONF_ALBUM_COVER_TEMP_URL])
-            _LOGGER.info("got response from web address, verifying...")
-            if content != "TESTING":
-                _LOGGER.warning("content different! verifying failed! got %s", content)
-                return self.async_show_form(step_id="hoho", data_schema=vol.Schema(
-                    UserInputUtils.page1(user_input, await self.get_media_players())),
-                                            errors={"base": "mapping_incorrect"})
-        except Exception as err:
-            _LOGGER.error(err)
-            return self.async_show_form(step_id="hoho", data_schema=vol.Schema(
-                UserInputUtils.page1(user_input, await self.get_media_players())),
-                                        errors={"base": "path_or_web-address_incorrect"})
-        return self.async_show_form(step_id="smb", data_schema=vol.Schema(UserInputUtils.page2(user_input)), )
+    async def async_step_readme(self, user_input=None, error=None):
+        return self.async_show_form(step_id="finish", data_schema=None, )
 
-    async def async_step_smb(self, user_input=None):
-        fillEmptyFields(user_input)
-        _LOGGER.info("verify SMB...")
-        result = HohoSmbUtil.test_connection(user_input[CONF_NETBIOS], user_input[CONF_IP_ADDR],
-                                             user_input[CONF_USERNAME], user_input[CONF_PASSWORD],
-                                             user_input[CONF_ROOT_FOLDER], user_input[CONF_PATH], )
-        if result != "success":
-            _LOGGER.error("verify SMB error:%s", result)
-            errors: Dict[str, str] = {"base": result}
-            return self.async_show_form(step_id="smb", data_schema=vol.Schema(UserInputUtils.page2(user_input)),
-                                        errors=errors, )
-        _LOGGER.info("verify SMB success")
-        return self.async_create_entry(title="Hoho Media Center", data=user_input)
-
-    async def testing_mapping(self, local: str, remote: str) -> str:
-        file_test = open(local + "/HohoMediaWriteableTest.txt", "w")
-        file_test.write("TESTING")
-        file_test.close()
-        _LOGGER.info("file wrote done, testing web http address mapping...")
-        resp = await self.hass.async_add_executor_job(req.get, remote + "/HohoMediaWriteableTest.txt")
-        os.remove(local + "/HohoMediaWriteableTest.txt")
-        return resp.content.decode('utf-8')
+    async def async_step_finish(self, user_input=None):
+        return self.async_create_entry(title="Hoho Media Center", data=HOHO_DEFAULT_CONF_DICT)
 
     @staticmethod
     @callback

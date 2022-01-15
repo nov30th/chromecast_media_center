@@ -31,7 +31,12 @@ CONF_WRITEABLE = "writeable"
 
 # Entities
 
-
+ENTITY_PLAYLIST = "hoho_chromecast_media_playlist"
+ENTITY_MEDIA_PLAYER = "hoho_chromecast_media_player"
+SWITCH_POWER = "hoho_chromecast_media_playlist"
+SWITCH_DELETE = "hoho_chromecast_media_delete_switch"
+SWITCH_SHUFFLE = "hoho_chromecast_media_shuffle_mode"
+SWITCH_FAVORITE = "hoho_chromecast_media_favorite_song"
 
 ##
 

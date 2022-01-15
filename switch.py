@@ -10,6 +10,7 @@ from homeassistant.const import (STATE_ON, )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
+from .const import *
 from .entity import HohoMediaCenterEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -40,7 +41,7 @@ class HohoMediaCenterPowerSwitch(HohoMediaCenterEntity, SwitchEntity, RestoreEnt
         super().__init__(config_entry)
         # self._attr_name = f"{device.name} Power"
         self._attr_name = "HOHO Chromecast Media Power"
-        self._attr_unique_id = "hoho_chromecast_media_power"
+        self._attr_unique_id = SWITCH_POWER
         self._attr_icon = "mdi:play"
 
     async def async_added_to_hass(self):
@@ -72,7 +73,7 @@ class HohoMediaCenterFavoriteSwitch(HohoMediaCenterEntity, SwitchEntity, Restore
         """Initialize the switch."""
         super().__init__(config_entry)
         self._attr_name = "Favorite Song"
-        self._attr_unique_id = "hoho_chromecast_media_favorite_song"
+        self._attr_unique_id = SWITCH_FAVORITE
         self._attr_icon = "mdi:cards-heart"
 
     async def async_added_to_hass(self):
@@ -104,7 +105,7 @@ class HohoMediaCenterDeleteSwitch(HohoMediaCenterEntity, SwitchEntity, RestoreEn
         """Initialize the switch."""
         super().__init__(config_entry)
         self._attr_name = "Delete Song"
-        self._attr_unique_id = "hoho_chromecast_media_delete_switch"
+        self._attr_unique_id = SWITCH_DELETE
         self._attr_icon = "mdi:delete"
 
     async def async_added_to_hass(self):
@@ -136,7 +137,7 @@ class HohoMediaCenterShuffleMusicSwitch(HohoMediaCenterEntity, SwitchEntity, Res
         """Initialize the switch."""
         super().__init__(config_entry)
         self._attr_name = "Shuffle Music"
-        self._attr_unique_id = "hoho_chromecast_media_shuffle_mode"
+        self._attr_unique_id = SWITCH_SHUFFLE
         self._attr_icon = "mdi:shuffle-variant"
 
     async def async_added_to_hass(self):

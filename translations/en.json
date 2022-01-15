@@ -1,41 +1,19 @@
 {
   "title": "HOHO`` Chromecast Media Center",
   "config": {
-    "error": {
-      "pwd_error": "Wrong password or username.",
-      "no_files": "Empty folder!",
-      "path_error": "Incorrect or inaccessible path!",
-      "unable_to_connect_or_netbios_name_error": "IP or HOSTNAME INCORRECT!",
-      "path_not_exist": "Local path does not exist!",
-      "mapping_incorrect": "Local path with web address not same!",
-      "path_or_web-address_incorrect": "Local path with web address does not mapping!"
-    },
     "abort": {
       "one_instance_only": "CURRENT VERSION JUST 1 INSTANCE SUPPORTED."
     },
     "step": {
-      "hoho": {
-        "description": "On Boarding Settings",
+      "readme": {
+        "description": "Please finish all configuration in 'configure' of this component after set up.",
         "data": {
-          "speaker": "Gogole media player entity id",
-          "cover_temp_file_path": "Writeable website path for cover saving",
-          "cover_temp_file_url": "Website address for media player reading cover",
-          "file_exts_filter": "Music file types to be played",
-          "fix_ha_media_player": "Fix HA can not handle special file name in url",
-          "rich_info_support": "Read the music ID3 tag and post to media players",
-          "reset_ordered_index_once_stop_playing": "Reset the order index when non-shuffle playing stopped",
-          "shuffle": "Shuffle music"
         }
       },
-      "smb": {
-        "description": "SMB Client Settings",
+      "finish": {
+        "title": "REMEMBER",
+        "description": "After click 'submit' you have to set the configuration in \n\nChromecast Media Center card -> CONFIGURE. \n\nDetails: http://github.com/nov30th/chromecast_media_center",
         "data": {
-          "netbios": "SMB server NETBIOS/COMPUTER-NAME (NOT IP ADDRESS)",
-          "ip_address": "SMB server IP address",
-          "username": "Username",
-          "password": "Password",
-          "root_folder": "The 1st level folder in SMB",
-          "path": "Path to music folder in SMB"
         }
       }
     }
