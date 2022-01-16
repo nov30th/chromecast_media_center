@@ -37,7 +37,7 @@ SWITCH_POWER = "hoho_chromecast_media_playlist"
 SWITCH_DELETE = "hoho_chromecast_media_delete_switch"
 SWITCH_SHUFFLE = "hoho_chromecast_media_shuffle_mode"
 SWITCH_FAVORITE = "hoho_chromecast_media_favorite_song"
-
+SWITCH_CONVERT_NCM = "hoho_chromecast_media_convert_ncm"
 ##
 
 

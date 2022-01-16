@@ -13,6 +13,7 @@ class HohoMediaCenterEntity(Entity):
     def __init__(self, config_entry):
         """Initialize the entity."""
         self._config_entry = config_entry
+        self.config_entry = config_entry
 
     async def async_added_to_hass(self):
         """Call when the entity is added to hass."""

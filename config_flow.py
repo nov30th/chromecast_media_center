@@ -12,12 +12,12 @@ from .hoho_smb import HohoSmbUtil
 
 _LOGGER = logging.getLogger(__name__)
 
-HOHO_DEFAULT_CONF_DICT = {"speaker": "media_player.home_group", "cover_temp_file_path": "config/www1",
-                          "cover_temp_file_url": "http://127.0.0.1:8123/local1", "file_exts_filter": "mp3;flac",
+HOHO_DEFAULT_CONF_DICT = {"speaker": "media_player.home_group", "cover_temp_file_path": "/config/www",
+                          "cover_temp_file_url": "http://127.0.0.1:8123/local", "file_exts_filter": "mp3;flac",
                           "fix_ha_media_player": True, "rich_info_support": True,
                           "reset_ordered_index_once_stop_playing": True, "shuffle": True, "netbios": "HOSTNAME",
                           "ip_address": "IP", "username": "USER", "password": "PWD", "root_folder": "FOLDER NAME",
-                          "path": "/", "conf": False}
+                          "path": "\\", "conf": False}
 
 
 def fillEmptyFields(source: Dict):
@@ -118,8 +118,8 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
     async def async_step_hoho(self, user_input=None):
         self.data.update(user_input.items())
-        if not os.path.exists(self.data[CONF_ALBUM_COVER_TEMP_FILE]):
-            os.mkdir(self.data[CONF_ALBUM_COVER_TEMP_FILE])
+        # if not os.path.exists(self.data[CONF_ALBUM_COVER_TEMP_FILE]):
+        #     os.mkdir(self.data[CONF_ALBUM_COVER_TEMP_FILE])
         if not os.path.exists(self.data[CONF_ALBUM_COVER_TEMP_FILE]):
             _LOGGER.warning("local path does not exist.")
             return self.async_show_form(step_id="hoho", data_schema=vol.Schema(
@@ -163,4 +163,5 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
             return self.async_show_form(step_id="smb", data_schema=vol.Schema(UserInputUtils.page2(self.data)),
                                         errors=errors, )
         _LOGGER.info("verify SMB success")
+        self.data['conf'] = True
         return self.async_create_entry(title="Hoho Media Center", data=self.data)

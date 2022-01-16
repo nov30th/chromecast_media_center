@@ -9,7 +9,9 @@
   "iot_class": "assumed_state",
   "name": "Chromecast Media Center",
   "requirements": [
-    "pysmb==1.2.7"
+    "pysmb==1.2.7",
+    "mutagen",
+    "pycryptodome"
   ],
   "version": "0.0.1"
 }
