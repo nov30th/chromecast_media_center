@@ -20,3 +20,16 @@ Welcome PR
 - [ ] Play music and basic functions in **ha-hoho-google-media-centre** (基本功能)
 - [ ] Supports local music files playing (支持本地音乐文件播放)
 - [ ] Other functions/features (其他的功能)
+
+## Screenshots
+
+### Options
+<img src="images/options1.png" width="400px" />
+<img src="images/options2.png" width="400px" />
+
+### Switches
+The switch will off once all ncm files been converted,
+
+this process will deletes all ncm files and saves the mp3/flac files into the SMB.
+
+<img src="images/converting_switch.png" width="400px" />
