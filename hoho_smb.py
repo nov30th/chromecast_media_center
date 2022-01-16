@@ -80,7 +80,11 @@ class HohoSmbUtil:
             _LOGGER.info("downloading %s for converting...", file)
             with open(temp_file_name, 'wb') as fp:
                 self._conn.retrieveFile(self._root_folder, file, fp)
-            dump(temp_file_name, )
+            try:
+                dump(temp_file_name, )
+            except Exception as ex:
+                _LOGGER.error(ex, "failed to convert %s ncm file, ignoring...", file)
+                continue
             _LOGGER.info("file %s converted locally.", file)
             if os.path.exists(path_mp3):
                 with open(path_mp3, 'rb') as fp:
